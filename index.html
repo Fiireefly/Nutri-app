@@ -7,18 +7,17 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>NutriAI Pro</title>
+  <title>NutriAI & Gym Pro v3</title>
 
-  <!-- Dynamisches PWA-Manifest & Icon (Behebt den Fehler "App kann nicht installiert werden") -->
+  <!-- Dynamisches PWA-Manifest & Icon -->
   <script>
     (function() {
-      const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="120" fill="#020617"/><circle cx="256" cy="256" r="190" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="24"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-size="220">🥗</text></svg>`;
+      const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="120" fill="#020617"/><circle cx="256" cy="256" r="190" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-width="24"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-size="200">💪</text></svg>`;
       const iconUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(iconSvg);
-      
       const manifest = {
-        name: "NutriAI Pro Makro-Tracker",
-        short_name: "NutriAI",
-        description: "KI Kalorien- & Makro-Tracker",
+        name: "NutriAI & Gym Pro v3",
+        short_name: "NutriGym",
+        description: "KI Kalorien-, Makro- & Gym-Tracker",
         start_url: window.location.href,
         display: "standalone",
         orientation: "portrait",
@@ -44,23 +43,25 @@
     .progress-bar { transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-24 select-none">
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-28 select-none">
 
-  <!-- Direkt-Installations-Banner (Erscheint automatisch auf HTTPS / GitHub Pages) -->
+  <!-- PWA Install Banner -->
   <div id="installBanner" class="hidden bg-emerald-600 text-white px-4 py-2.5 text-xs font-semibold flex justify-between items-center shadow-lg">
-    <span>📲 Als echte Pixel-App installieren (Vollbild)</span>
+    <span>📲 Als Vollbild-App auf deinem Pixel installieren</span>
     <button onclick="triggerInstall()" class="bg-white text-emerald-950 px-3 py-1 rounded-lg font-bold">Installieren</button>
   </div>
 
   <!-- Top App Bar -->
-  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+  <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-lg">🥗</div>
+      <div class="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-lg">💪</div>
       <div>
-        <h1 class="text-base font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent leading-tight">NutriAI Pro</h1>
-        <p class="text-[10px] text-slate-400">KI Makro- & Kalorientracker</p>
+        <h1 class="text-base font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent leading-tight">NutriAI & Gym Pro</h1>
+        <p class="text-[10px] text-slate-400">v3.0 • KI Makro- & Strength-Tracker</p>
       </div>
     </div>
     <div class="flex items-center gap-1.5 bg-slate-800 border border-slate-700 rounded-xl px-2 py-1">
@@ -72,7 +73,9 @@
 
   <main class="max-w-md mx-auto px-4 pt-4 space-y-4">
 
-    <!-- TAB 1: DASHBOARD -->
+    <!-- ==========================================
+         TAB 1: TAGEBUCH (DASHBOARD)
+    =========================================== -->
     <div id="tab-dashboard" class="tab-content active space-y-4">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
         <div class="flex justify-between items-center mb-2">
@@ -141,26 +144,75 @@
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
         <div class="flex justify-between items-center mb-3">
           <h2 class="text-sm font-semibold">Geloggte Mahlzeiten</h2>
-          <button onclick="switchTab('scanner')" class="text-xs text-emerald-400 font-medium">+ Hinzufügen</button>
+          <button onclick="switchTab('scanner')" class="text-xs text-emerald-400 font-medium">+ Essen hinzufügen</button>
         </div>
         <div id="mealList" class="space-y-2 text-sm"></div>
       </div>
     </div>
 
-    <!-- TAB 2: KI & SCANNER -->
+    <!-- ==========================================
+         TAB 2: ERNÄHRUNG (DB-SUCHE, KI & SCANNER)
+    =========================================== -->
     <div id="tab-scanner" class="tab-content space-y-4">
+
+      <!-- 1. MANUELLE LEBENSMITTEL-DATENBANK & SUCHE -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-semibold flex items-center gap-1.5">🔍 Lebensmittel-Datenbank</h2>
+          <button onclick="toggleCustomFoodModal()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 px-2.5 py-1 rounded-lg font-medium">+ Eigenes Produkt</button>
+        </div>
+
+        <div id="customFoodBox" class="hidden bg-slate-800/80 border border-slate-700 rounded-xl p-3 space-y-2 text-xs">
+          <div class="font-semibold text-emerald-400">Eigenes Lebensmittel (pro 100g):</div>
+          <input id="cfName" type="text" placeholder="Name (z.B. Mein Proteinshake)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5">
+          <div class="grid grid-cols-4 gap-1.5">
+            <input id="cfKcal" type="number" placeholder="kcal" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5">
+            <input id="cfP" type="number" placeholder="Prot (g)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5">
+            <input id="cfC" type="number" placeholder="Carbs (g)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5">
+            <input id="cfF" type="number" placeholder="Fett (g)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5">
+          </div>
+          <button onclick="saveCustomFood()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-lg font-bold">In Datenbank speichern</button>
+        </div>
+
+        <input id="foodSearchInput" type="text" oninput="renderFoodDatabase()" placeholder="Lebensmittel suchen (z.B. Reis, Skyr, Ei, Rind...)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+        
+        <div class="flex gap-1.5 overflow-x-auto pb-1 text-[11px]">
+          <button onclick="setFoodCategory('Alle')" id="fcat-Alle" class="fcat-btn bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap">Alle</button>
+          <button onclick="setFoodCategory('Protein')" id="fcat-Protein" class="fcat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Fleisch & Fisch</button>
+          <button onclick="setFoodCategory('Milch')" id="fcat-Milch" class="fcat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Milch & Eier</button>
+          <button onclick="setFoodCategory('Carbs')" id="fcat-Carbs" class="fcat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Beilagen & Getreide</button>
+          <button onclick="setFoodCategory('Obst')" id="fcat-Obst" class="fcat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Obst & Gemüse</button>
+          <button onclick="setFoodCategory('Snacks')" id="fcat-Snacks" class="fcat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Fette & Snacks</button>
+        </div>
+
+        <div id="foodDbList" class="max-h-56 overflow-y-auto space-y-1.5 pr-1"></div>
+
+        <div id="selectedFoodPanel" class="hidden bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <span id="selFoodName" class="text-xs font-bold text-emerald-300">Ausgewähltes Produkt</span>
+            <span id="selFoodPreview" class="text-[11px] text-slate-300">0 kcal</span>
+          </div>
+          <div class="flex gap-2 items-center">
+            <input id="selFoodGrams" type="number" value="100" oninput="updateSelectedFoodPreview()" class="w-24 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-sm font-bold text-center">
+            <span class="text-xs text-slate-400">Gramm / ml</span>
+            <button onclick="confirmAddSelectedFood()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded-lg text-xs font-bold">+ Eintragen</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. KI-TEXT & FOTO ANALYSE -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3.5">
         <h2 class="text-sm font-semibold">🤖 KI-Mahlzeitenerfassung (Text & Foto)</h2>
         <div>
-          <label class="text-xs text-slate-400 block mb-1">Was hast du gegessen?</label>
+          <label class="text-xs text-slate-400 block mb-1">Komplette Mahlzeit als Satz eingeben:</label>
           <div class="flex gap-2">
             <input id="aiTextInput" type="text" placeholder="z.B. 200g Hähnchen, 150g Reis und 1 EL Öl" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm">
-            <button onclick="analyzeTextWithAI()" class="bg-emerald-600 hover:bg-emerald-500 px-3.5 py-2 rounded-xl text-xs font-bold">Eintragen</button>
+            <button onclick="analyzeTextWithAI()" class="bg-emerald-600 hover:bg-emerald-500 px-3.5 py-2 rounded-xl text-xs font-bold">KI-Log</button>
           </div>
         </div>
         <div class="pt-2 border-t border-slate-800 flex items-center justify-between gap-2">
           <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2">
-            <span>📷 Foto vom Essen machen</span>
+            <span>📷 Foto vom Essen scannen</span>
             <input type="file" accept="image/*" capture="environment" class="hidden" onchange="analyzeImageWithAI(event)">
           </label>
           <span id="aiStatus" class="text-[11px] text-slate-400">Bereit</span>
@@ -168,6 +220,7 @@
         <img id="imagePreview" class="w-full h-36 object-cover rounded-xl hidden border border-slate-700" alt="Vorschau">
       </div>
 
+      <!-- 3. BARCODE SCANNER -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
         <div class="flex justify-between items-center">
           <h2 class="text-sm font-semibold">🏷️ Barcode-Scanner (OpenFoodFacts)</h2>
@@ -179,27 +232,270 @@
           <input id="barcodeGrams" type="number" value="100" class="w-20 bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs" placeholder="Gramm">
           <button onclick="lookupBarcode()" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-xl text-xs font-semibold">Suchen</button>
         </div>
-        <div class="flex flex-wrap gap-1.5 pt-1">
-          <button onclick="quickBarcode('3017620422003')" class="text-[11px] bg-slate-800 px-2 py-1 rounded-lg text-slate-300">Nutella</button>
-          <button onclick="quickBarcode('4000405001566')" class="text-[11px] bg-slate-800 px-2 py-1 rounded-lg text-slate-300">Kölln Haferflocken</button>
-          <button onclick="quickBarcode('5449000000996')" class="text-[11px] bg-slate-800 px-2 py-1 rounded-lg text-slate-300">Coca-Cola</button>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         TAB 3: GYM TRACKER (LIVE, KI-WORKOUT, 1RM)
+    =========================================== -->
+    <div id="tab-gym" class="tab-content space-y-4">
+
+      <!-- INTEGRIERTER REST-TIMER MIT AUTO-START BEI SATZ-EINTRAG -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/60 border border-slate-800 rounded-2xl p-4 shadow-lg">
+        <div class="flex justify-between items-start mb-2">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider">⏱️ Rest Timer</span>
+              <label class="flex items-center gap-1 text-[10px] text-slate-300 bg-slate-800/90 px-2 py-0.5 rounded-full border border-slate-700 cursor-pointer">
+                <input id="autoStartTimerToggle" type="checkbox" checked class="accent-emerald-500">
+                <span>Auto-Start bei Satz-Eintrag</span>
+              </label>
+            </div>
+            <div id="timerDisplay" class="text-3xl font-extrabold font-mono text-white mt-0.5">01:30</div>
+          </div>
+          <div class="flex gap-1.5 mt-1">
+            <button onclick="startRestTimer()" id="timerStartBtn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold">Start</button>
+            <button onclick="pauseRestTimer()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-2 rounded-xl text-xs font-semibold">Pause</button>
+            <button onclick="resetRestTimer()" class="bg-slate-800 hover:bg-red-950/60 text-slate-400 px-2.5 py-2 rounded-xl text-xs">↺</button>
+          </div>
+        </div>
+
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-3">
+          <div id="timerBar" class="bg-emerald-400 h-full progress-bar" style="width: 100%"></div>
+        </div>
+
+        <div class="flex items-center justify-between gap-1.5 text-xs">
+          <button onclick="setRestDuration(60)" class="flex-1 bg-slate-800 hover:bg-slate-700 py-1.5 rounded-lg font-medium">60s</button>
+          <button onclick="setRestDuration(90)" class="flex-1 bg-slate-800 hover:bg-slate-700 py-1.5 rounded-lg font-medium border border-emerald-500/30 text-emerald-300">90s</button>
+          <button onclick="setRestDuration(120)" class="flex-1 bg-slate-800 hover:bg-slate-700 py-1.5 rounded-lg font-medium">120s</button>
+          <button onclick="setRestDuration(180)" class="flex-1 bg-slate-800 hover:bg-slate-700 py-1.5 rounded-lg font-medium">180s</button>
+          <input id="customTimerSec" type="number" placeholder="Sek." onchange="setRestDuration(parseInt(this.value)||90)" class="w-16 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-center text-xs">
         </div>
       </div>
+
+      <!-- GYM SUB-NAVIGATION (4 Unter-Tabs) -->
+      <div class="grid grid-cols-4 gap-1 bg-slate-900 p-1.5 rounded-xl border border-slate-800 text-[11px] font-semibold">
+        <button onclick="switchGymSubTab('live')" id="gymsub-live" class="bg-emerald-600 text-white py-2 rounded-lg">🔥 Live</button>
+        <button onclick="switchGymSubTab('plans')" id="gymsub-plans" class="text-slate-400 py-2 rounded-lg">📋 Pläne & KI</button>
+        <button onclick="switchGymSubTab('onerm')" id="gymsub-onerm" class="text-slate-400 py-2 rounded-lg">🧮 1RM</button>
+        <button onclick="switchGymSubTab('history')" id="gymsub-history" class="text-slate-400 py-2 rounded-lg">🏆 Verlauf</button>
+      </div>
+
+      <!-- SUB-TAB 1: LIVE WORKOUT TRACKER -->
+      <div id="gym-view-live" class="space-y-3">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex justify-between items-center gap-2">
+            <div>
+              <h3 id="activeWorkoutTitle" class="text-sm font-bold text-white">Freies Training</h3>
+              <p class="text-[11px] text-slate-400">Volumen: <strong id="liveVolumeDisplay" class="text-emerald-400">0 kg</strong> • Sätze: <strong id="liveSetsDisplay" class="text-cyan-400">0</strong></p>
+            </div>
+            <select id="loadPlanSelect" onchange="loadPlanIntoLiveWorkout(this.value)" class="bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-emerald-400 font-semibold max-w-[165px]">
+              <option value="">📋 Plan laden...</option>
+            </select>
+          </div>
+
+          <!-- Übung aus den 95+ Übungen zum Live-Training hinzufügen -->
+          <div class="flex gap-2 pt-2 border-t border-slate-800">
+            <select id="liveAddExerciseSelect" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs"></select>
+            <button onclick="addExerciseToLive()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-xl text-xs font-bold">+ Übung</button>
+          </div>
+        </div>
+
+        <div id="liveExercisesContainer" class="space-y-3"></div>
+
+        <button onclick="finishLiveWorkout()" id="finishWorkoutBtn" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white py-3 rounded-2xl text-sm font-extrabold shadow-lg hidden">
+          ✅ Workout abschließen & in Statistik speichern
+        </button>
+      </div>
+
+      <!-- SUB-TAB 2: KI-WORKOUT-GENERATOR & TRAININGSPLAN-BAUKASTEN -->
+      <div id="gym-view-plans" class="hidden space-y-4">
+
+        <!-- NEU: KI WORKOUT GENERATOR PER TEXT -->
+        <div class="bg-gradient-to-br from-slate-900 to-emerald-950/40 border border-emerald-500/40 rounded-2xl p-4 space-y-3 shadow-lg">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold text-emerald-300 flex items-center gap-1.5">🤖 KI-Workout-Generator</h3>
+            <span id="aiGymStatus" class="text-[10px] text-slate-400">Offline & Online bereit</span>
+          </div>
+          <p class="text-[11px] text-slate-300">Schreibe der KI, was du heute trainieren willst – sie erstellt dir sofort den passenden Trainingsplan:</p>
+          <textarea id="aiGymPromptInput" rows="2" placeholder="z.B. Erstelle mir ein intensives Brust und Trizeps Workout mit 6 Übungen (Fokus Kurzhanteln & Kabelzug)..." class="w-full bg-slate-950/90 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"></textarea>
+          <div class="flex gap-2">
+            <button onclick="generateWorkoutWithAI(false)" class="flex-1 bg-slate-800 hover:bg-slate-700 border border-emerald-500/40 text-emerald-300 py-2 rounded-xl text-xs font-bold">📋 Als Plan speichern</button>
+            <button onclick="generateWorkoutWithAI(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-xs font-bold">🔥 Direkt starten</button>
+          </div>
+        </div>
+
+        <!-- MANUELLER TRAININGSPLAN-BAUKASTEN (95+ ÜBUNGEN) -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-bold">🛠️ Manuell Plan zusammenstellen</h3>
+            <button onclick="toggleCustomExerciseBox()" class="text-[11px] bg-slate-800 text-cyan-400 px-2 py-1 rounded-lg border border-slate-700">+ Eigene Übung</button>
+          </div>
+
+          <!-- Eigene Übung zur Datenbank hinzufügen -->
+          <div id="customExBox" class="hidden bg-slate-800/90 p-2.5 rounded-xl border border-slate-700 space-y-2 text-xs">
+            <div class="flex gap-1.5">
+              <input id="customExName" type="text" placeholder="Übungsname (z.B. Viking Press)" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5">
+              <select id="customExCat" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5">
+                <option value="Brust">Brust</option>
+                <option value="Rücken">Rücken</option>
+                <option value="Beine">Beine</option>
+                <option value="Po">Po / Glutes</option>
+                <option value="Schultern">Schultern</option>
+                <option value="Bizeps">Bizeps</option>
+                <option value="Trizeps">Trizeps</option>
+                <option value="Core">Core / Bauch</option>
+                <option value="Cardio">Cardio</option>
+              </select>
+            </div>
+            <button onclick="saveCustomExercise()" class="w-full bg-cyan-600 text-white py-1.5 rounded-lg font-bold">Übung zur Datenbank hinzufügen</button>
+          </div>
+
+          <input id="newPlanName" type="text" placeholder="Name des Plans (z.B. Oberkörper Hypertrophie)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm">
+          
+          <input id="exerciseSearchInput" type="text" oninput="renderExerciseBuilder()" placeholder="Übung aus 95+ suchen (z.B. Bankdrücken, Latzug, Hip Thrust...)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-xs">
+
+          <div class="flex gap-1.5 overflow-x-auto pb-1 text-[11px]">
+            <button onclick="filterExerciseDB('Alle')" id="excat-Alle" class="excat-btn bg-emerald-600 text-white px-2.5 py-1 rounded-lg whitespace-nowrap">Alle</button>
+            <button onclick="filterExerciseDB('Brust')" id="excat-Brust" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Brust</button>
+            <button onclick="filterExerciseDB('Rücken')" id="excat-Rücken" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Rücken</button>
+            <button onclick="filterExerciseDB('Beine')" id="excat-Beine" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Beine</button>
+            <button onclick="filterExerciseDB('Po')" id="excat-Po" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Po / Glutes</button>
+            <button onclick="filterExerciseDB('Schultern')" id="excat-Schultern" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Schultern</button>
+            <button onclick="filterExerciseDB('Bizeps')" id="excat-Bizeps" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Bizeps</button>
+            <button onclick="filterExerciseDB('Trizeps')" id="excat-Trizeps" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Trizeps</button>
+            <button onclick="filterExerciseDB('Core')" id="excat-Core" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Bauch / Core</button>
+            <button onclick="filterExerciseDB('Cardio')" id="excat-Cardio" class="excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap">Cardio</button>
+          </div>
+
+          <div id="exerciseBuilderList" class="max-h-52 overflow-y-auto space-y-1.5 pr-1"></div>
+
+          <div id="draftPlanExercises" class="text-xs text-slate-300 space-y-1 pt-2 border-t border-slate-800"></div>
+
+          <button onclick="saveNewPlan()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold">💾 Trainingsplan speichern</button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2.5">
+          <h3 class="text-sm font-bold">📋 Gespeicherte Trainingspläne</h3>
+          <div id="savedPlansList" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 3: 1RM MAXIMALKRAFT-RECHNER -->
+      <div id="gym-view-onerm" class="hidden space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-4 shadow-lg">
+          <div>
+            <h3 class="text-sm font-bold flex items-center gap-1.5">🧮 1RM Maximalkraft-Rechner</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">Berechnet dein theoretisches Maximalgewicht für 1 Wiederholung (Epley- & Brzycki-Schnitt).</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="text-slate-400 block mb-1">Bewegtes Gewicht (kg)</label>
+              <input id="rmWeightInput" type="number" step="0.5" value="80" oninput="calculate1RM()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-base font-bold text-white text-center">
+            </div>
+            <div>
+              <label class="text-slate-400 block mb-1">Geschaffte Wdh. (Reps)</label>
+              <input id="rmRepsInput" type="number" value="8" oninput="calculate1RM()" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-base font-bold text-white text-center">
+            </div>
+          </div>
+
+          <div class="bg-emerald-950/40 border border-emerald-500/40 rounded-2xl p-4 text-center">
+            <div class="text-xs text-emerald-300 font-semibold uppercase tracking-wider">Geschätztes 1-Rep-Max (1RM)</div>
+            <div id="rmResultMain" class="text-4xl font-extrabold text-white mt-1">101.3 kg</div>
+          </div>
+
+          <div>
+            <h4 class="text-xs font-semibold text-slate-300 mb-2">Trainingsgewichte nach Intensität:</h4>
+            <div id="rmPercentageTable" class="grid grid-cols-2 gap-2 text-xs"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 4: WORKOUT-VERLAUF -->
+      <div id="gym-view-history" class="hidden space-y-3">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+          <h3 class="text-sm font-bold mb-3">🏆 Abgeschlossene Workouts</h3>
+          <div id="workoutHistoryList" class="space-y-2.5 text-xs"></div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- TAB 3: WOCHENSTATISTIK -->
+    <!-- ==========================================
+         TAB 4: STATISTIK, KALENDER & GYM PROGRESS
+    =========================================== -->
     <div id="tab-stats" class="tab-content space-y-4">
+
+      <!-- 1. MONATS-AKTIVITÄTS-KALENDER (GYM & KALORIEN) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-bold flex items-center gap-1.5">📅 Aktivitäts-Kalender</h2>
+          <div class="flex items-center gap-2 text-xs">
+            <button onclick="changeCalendarMonth(-1)" class="bg-slate-800 px-2 py-1 rounded-lg">◀</button>
+            <span id="calMonthLabel" class="font-bold text-slate-200 min-w-[105px] text-center">Oktober 2026</span>
+            <button onclick="changeCalendarMonth(1)" class="bg-slate-800 px-2 py-1 rounded-lg">▶</button>
+          </div>
+        </div>
+
+        <div class="flex gap-4 text-[11px] text-slate-300 justify-center bg-slate-800/50 py-1.5 rounded-xl">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span> Kalorien getrackt</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span> Gym-Workout</span>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1 text-center text-[10px] text-slate-400 font-bold">
+          <div>Mo</div><div>Di</div><div>Mi</div><div>Do</div><div>Fr</div><div>Sa</div><div>So</div>
+        </div>
+        <div id="calendarGrid" class="grid grid-cols-7 gap-1.5 text-center text-xs"></div>
+      </div>
+
+      <!-- 2. GYM PROGRESS TRACKER (EINZELÜBUNG & GENERELLE STÄRKE) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg space-y-3">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-bold">💪 Gym Progress Tracker</h2>
+          <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Kraft-Steigerung</span>
+        </div>
+
+        <div>
+          <label class="text-[11px] text-slate-400 block mb-1">Übung auswählen für Kraftverlauf (1RM & Top-Gewicht):</label>
+          <select id="progressExerciseSelect" onchange="renderGymProgressCharts()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-white"></select>
+        </div>
+
+        <div id="exercisePRBadges" class="grid grid-cols-2 gap-2 text-xs">
+          <div class="bg-slate-800/70 p-2.5 rounded-xl border border-slate-700/60">
+            <div class="text-[10px] text-slate-400">Bestes Satz-Gewicht</div>
+            <div id="prBestWeight" class="text-base font-extrabold text-emerald-400 mt-0.5">0 kg</div>
+          </div>
+          <div class="bg-slate-800/70 p-2.5 rounded-xl border border-slate-700/60">
+            <div class="text-[10px] text-slate-400">Höchstes 1RM (Berechnet)</div>
+            <div id="prBest1RM" class="text-base font-extrabold text-cyan-400 mt-0.5">0 kg</div>
+          </div>
+        </div>
+
+        <canvas id="exerciseProgressChart" height="180"></canvas>
+      </div>
+
+      <!-- 3. GENERELLE STÄRKE (GESAMTVOLUMEN PRO WORKOUT) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-lg">
+        <h2 class="text-sm font-semibold mb-1">🔥 Generelle Stärke (Workout-Volumen in kg)</h2>
+        <p class="text-[11px] text-slate-400 mb-3">Zeigt dein insgesamt bewegtes Gewicht über deine letzten Trainingseinheiten.</p>
+        <canvas id="strengthVolumeChart" height="170"></canvas>
+      </div>
+
+      <!-- 4. KALORIEN & KÖRPERGEWICHT (7 TAGE) -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
         <h2 class="text-sm font-semibold mb-3">📊 Kalorienverlauf (Letzte 7 Tage)</h2>
-        <canvas id="calChart" height="190"></canvas>
+        <canvas id="calChart" height="180"></canvas>
       </div>
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-        <h2 class="text-sm font-semibold mb-3">📈 Gewichtsverlauf (kg)</h2>
-        <canvas id="weightChart" height="170"></canvas>
+        <h2 class="text-sm font-semibold mb-3">📈 Körpergewicht (kg)</h2>
+        <canvas id="weightChart" height="160"></canvas>
       </div>
     </div>
 
-    <!-- TAB 4: PROFIL & EXPORT -->
+    <!-- ==========================================
+         TAB 5: PROFIL & EXPORT
+    =========================================== -->
     <div id="tab-settings" class="tab-content space-y-4">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
         <h2 class="text-sm font-semibold">⚙️ Bedarfsrechner (Mifflin-St. Jeor)</h2>
@@ -249,9 +545,9 @@
       </div>
 
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
-        <label class="text-xs font-semibold block">🔑 Optionaler Gemini API-Key (für Live-Vision-KI)</label>
+        <label class="text-xs font-semibold block">🔑 Optionaler Gemini API-Key (für Live-KI)</label>
         <input id="apiKeyInput" type="password" placeholder="AIzaSy..." onchange="saveSettings()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs">
-        <p class="text-[11px] text-slate-400">Ohne API-Key nutzt die App den integrierten Offline-Smart-Parser.</p>
+        <p class="text-[11px] text-slate-400">Ohne Key laufen sowohl der Essens-Parser als auch der KI-Workout-Generator automatisch im lokalen Smart-Modus.</p>
       </div>
 
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
@@ -262,13 +558,17 @@
 
   </main>
 
+  <!-- Bottom Navigation Bar (5 Tabs) -->
   <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 z-40">
-    <div class="max-w-md mx-auto grid grid-cols-4 py-2 text-center text-[11px]">
+    <div class="max-w-md mx-auto grid grid-cols-5 py-2 text-center text-[10px]">
       <button onclick="switchTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center text-emerald-400 font-semibold">
         <span class="text-lg">🏠</span><span>Tagebuch</span>
       </button>
       <button onclick="switchTab('scanner')" id="nav-scanner" class="flex flex-col items-center text-slate-400">
-        <span class="text-lg">📷</span><span>KI & Scan</span>
+        <span class="text-lg">🥗</span><span>Essen & KI</span>
+      </button>
+      <button onclick="switchTab('gym')" id="nav-gym" class="flex flex-col items-center text-slate-400">
+        <span class="text-lg">🏋️</span><span>Gym</span>
       </button>
       <button onclick="switchTab('stats')" id="nav-stats" class="flex flex-col items-center text-slate-400">
         <span class="text-lg">📊</span><span>Statistik</span>
@@ -280,52 +580,258 @@
   </nav>
 
   <script>
-    // PWA Installations-Handler für Google Pixel
+    // PWA Install Handler
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
       document.getElementById('installBanner').classList.remove('hidden');
     });
-
     async function triggerInstall() {
       if (!deferredPrompt) return;
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        document.getElementById('installBanner').classList.add('hidden');
-      }
+      if (outcome === 'accepted') document.getElementById('installBanner').classList.add('hidden');
       deferredPrompt = null;
     }
 
-    const STORAGE_KEY = 'nutriai_pro_v1';
-    const foodDB = [
-      { keywords: ['hähnchen', 'huhn', 'pute', 'chicken'], name: 'Hähnchenbrust', kcal: 165, p: 31, c: 0, f: 3.6 },
-      { keywords: ['reis', 'basmati'], name: 'Reis (gekocht)', kcal: 130, p: 2.7, c: 28, f: 0.3 },
-      { keywords: ['haferflocken', 'oats', 'porridge'], name: 'Haferflocken', kcal: 372, p: 13.5, c: 58.7, f: 7.0 },
-      { keywords: ['ei', 'eier', 'rührei'], name: 'Hühnerei (60g)', kcal: 155, p: 13, c: 1.1, f: 11, unitWeight: 60 },
-      { keywords: ['olivenöl', 'öl'], name: 'Olivenöl', kcal: 884, p: 0, c: 0, f: 100, unitWeight: 10 },
-      { keywords: ['apfel'], name: 'Apfel', kcal: 52, p: 0.3, c: 14, f: 0.2, unitWeight: 150 },
-      { keywords: ['banane'], name: 'Banane', kcal: 89, p: 1.1, c: 23, f: 0.3, unitWeight: 120 },
-      { keywords: ['lachs', 'fisch'], name: 'Lachsfilet', kcal: 208, p: 20, c: 0, f: 13 },
-      { keywords: ['quark', 'magerquark', 'skyr'], name: 'Magerquark / Skyr', kcal: 67, p: 12, c: 4, f: 0.2 }
+    const STORAGE_KEY = 'nutriai_gym_pro_v3';
+
+    // Lebensmittel-Datenbank (pro 100g)
+    const defaultFoodDB = [
+      { id: 'f1', cat: 'Protein', keywords: ['hähnchen', 'huhn', 'chicken'], name: 'Hähnchenbrustfilet', kcal: 165, p: 31, c: 0, f: 3.6 },
+      { id: 'f2', cat: 'Protein', keywords: ['pute', 'putenbrust'], name: 'Putenbrustfilet', kcal: 135, p: 29, c: 0, f: 1.5 },
+      { id: 'f3', cat: 'Protein', keywords: ['rind', 'rinderhack', 'steak'], name: 'Rinderhackfleisch (mager)', kcal: 176, p: 21, c: 0, f: 10 },
+      { id: 'f4', cat: 'Protein', keywords: ['rindersteak', 'rumpsteak'], name: 'Rumpsteak / Rinderfilet', kcal: 190, p: 27, c: 0, f: 9 },
+      { id: 'f5', cat: 'Protein', keywords: ['lachs', 'fisch'], name: 'Lachsfilet', kcal: 208, p: 20, c: 0, f: 13 },
+      { id: 'f6', cat: 'Protein', keywords: ['thunfisch'], name: 'Thunfisch (im eigenen Saft)', kcal: 116, p: 26, c: 0, f: 1 },
+      { id: 'f7', cat: 'Protein', keywords: ['kabeljau', 'seelachs'], name: 'Seelachs / Kabeljau', kcal: 82, p: 18, c: 0, f: 0.8 },
+      { id: 'f8', cat: 'Protein', keywords: ['garnelen', 'shrimps'], name: 'Garnelen / Shrimps', kcal: 99, p: 24, c: 0.2, f: 0.3 },
+      { id: 'f9', cat: 'Protein', keywords: ['tofu'], name: 'Tofu (Natur)', kcal: 125, p: 15, c: 1.5, f: 6.5 },
+      { id: 'f10', cat: 'Milch', keywords: ['quark', 'magerquark'], name: 'Magerquark', kcal: 67, p: 12, c: 4, f: 0.2 },
+      { id: 'f11', cat: 'Milch', keywords: ['skyr'], name: 'Skyr Natur', kcal: 63, p: 11, c: 4, f: 0.2 },
+      { id: 'f12', cat: 'Milch', keywords: ['hüttenkäse', 'körniger'], name: 'Körniger Frischkäse (Light)', kcal: 78, p: 13, c: 3, f: 1.5 },
+      { id: 'f13', cat: 'Milch', keywords: ['ei', 'eier', 'rührei'], name: 'Hühnerei (Ganz)', kcal: 155, p: 13, c: 1.1, f: 11, unitWeight: 60 },
+      { id: 'f14', cat: 'Milch', keywords: ['whey', 'proteinpulver', 'shake'], name: 'Whey Protein Pulver', kcal: 375, p: 78, c: 5, f: 4.5 },
+      { id: 'f15', cat: 'Milch', keywords: ['milch', 'hafermilch'], name: 'Fettarme Milch (1,5%)', kcal: 47, p: 3.4, c: 4.8, f: 1.5 },
+      { id: 'f16', cat: 'Milch', keywords: ['gouda', 'käse'], name: 'Gouda / Schnittkäse', kcal: 356, p: 25, c: 0, f: 28 },
+      { id: 'f17', cat: 'Milch', keywords: ['mozzarella'], name: 'Mozzarella Light', kcal: 157, p: 19, c: 1, f: 8.5 },
+      { id: 'f18', cat: 'Carbs', keywords: ['reis', 'basmati', 'jasmin'], name: 'Reis (gekocht)', kcal: 130, p: 2.7, c: 28, f: 0.3 },
+      { id: 'f19', cat: 'Carbs', keywords: ['reis roh'], name: 'Reis (ungekocht)', kcal: 350, p: 7.5, c: 77, f: 0.6 },
+      { id: 'f20', cat: 'Carbs', keywords: ['haferflocken', 'oats', 'porridge'], name: 'Haferflocken', kcal: 372, p: 13.5, c: 58.7, f: 7.0 },
+      { id: 'f21', cat: 'Carbs', keywords: ['nudeln', 'pasta', 'spaghetti'], name: 'Pasta / Nudeln (gekocht)', kcal: 158, p: 5.8, c: 31, f: 0.9 },
+      { id: 'f22', cat: 'Carbs', keywords: ['kartoffeln', 'pellkartoffeln'], name: 'Kartoffeln (gekocht)', kcal: 77, p: 2, c: 17, f: 0.1 },
+      { id: 'f23', cat: 'Carbs', keywords: ['süßkartoffel'], name: 'Süßkartoffel', kcal: 86, p: 1.6, c: 20, f: 0.1 },
+      { id: 'f24', cat: 'Carbs', keywords: ['brot', 'vollkornbrot'], name: 'Vollkornbrot', kcal: 215, p: 7.5, c: 40, f: 1.8 },
+      { id: 'f25', cat: 'Carbs', keywords: ['reiswaffeln'], name: 'Reiswaffeln', kcal: 387, p: 8, c: 81, f: 3 },
+      { id: 'f26', cat: 'Carbs', keywords: ['couscous', 'bulgur'], name: 'Couscous / Bulgur (gekocht)', kcal: 112, p: 3.8, c: 23, f: 0.2 },
+      { id: 'f27', cat: 'Obst', keywords: ['banane'], name: 'Banane', kcal: 89, p: 1.1, c: 23, f: 0.3, unitWeight: 120 },
+      { id: 'f28', cat: 'Obst', keywords: ['apfel'], name: 'Apfel', kcal: 52, p: 0.3, c: 14, f: 0.2, unitWeight: 150 },
+      { id: 'f29', cat: 'Obst', keywords: ['beeren', 'blaubeeren', 'erdbeeren'], name: 'Beeren-Mix / Heidelbeeren', kcal: 45, p: 0.8, c: 9, f: 0.3 },
+      { id: 'f30', cat: 'Obst', keywords: ['brokkoli', 'gemüse'], name: 'Brokkoli', kcal: 34, p: 2.8, c: 7, f: 0.4 },
+      { id: 'f31', cat: 'Obst', keywords: ['avocado'], name: 'Avocado', kcal: 160, p: 2, c: 8.5, f: 15 },
+      { id: 'f32', cat: 'Snacks', keywords: ['olivenöl', 'öl'], name: 'Olivenöl', kcal: 884, p: 0, c: 0, f: 100, unitWeight: 10 },
+      { id: 'f33', cat: 'Snacks', keywords: ['erdnussbutter', 'erdnussmus'], name: 'Erdnussmus (100%)', kcal: 588, p: 25, c: 20, f: 50 },
+      { id: 'f34', cat: 'Snacks', keywords: ['mandeln', 'nüsse', 'walnüsse'], name: 'Mandeln / Nüsse', kcal: 579, p: 21, c: 22, f: 50 }
+    ];
+
+    // 95+ UMFANGREICHE GYM-ÜBUNGSDATENBANK
+    const defaultExerciseDB = [
+      // BRUST (14)
+      { name: 'Bankdrücken (Langhantel)', cat: 'Brust', tags: ['push', 'brust', 'langhantel', 'oberkörper'] },
+      { name: 'Kurzhantel-Bankdrücken (Flachbank)', cat: 'Brust', tags: ['push', 'brust', 'kurzhantel', 'oberkörper'] },
+      { name: 'Schrägbankdrücken (Langhantel)', cat: 'Brust', tags: ['push', 'brust', 'langhantel', 'oberkörper'] },
+      { name: 'Kurzhantel-Schrägbankdrücken', cat: 'Brust', tags: ['push', 'brust', 'kurzhantel', 'oberkörper'] },
+      { name: 'Negativ-Bankdrücken', cat: 'Brust', tags: ['push', 'brust', 'langhantel'] },
+      { name: 'Brustpresse (Maschine sitzend)', cat: 'Brust', tags: ['push', 'brust', 'maschine', 'oberkörper'] },
+      { name: 'Schrägbank-Brustpresse (Maschine)', cat: 'Brust', tags: ['push', 'brust', 'maschine'] },
+      { name: 'Butterfly / Pec Deck (Maschine)', cat: 'Brust', tags: ['push', 'brust', 'maschine'] },
+      { name: 'Cable Flys (Kabelzug von oben nach unten)', cat: 'Brust', tags: ['push', 'brust', 'kabel'] },
+      { name: 'Cable Flys (Kabelzug von unten nach oben)', cat: 'Brust', tags: ['push', 'brust', 'kabel'] },
+      { name: 'Kurzhantel-Flys (Flach-/Schrägbank)', cat: 'Brust', tags: ['push', 'brust', 'kurzhantel'] },
+      { name: 'Dips (vorgebeugt für Brust)', cat: 'Brust', tags: ['push', 'brust', 'eigengewicht'] },
+      { name: 'Liegestütze (Push-Ups)', cat: 'Brust', tags: ['push', 'brust', 'eigengewicht'] },
+      { name: 'Kurzhantel-Überzüge (Pullovers)', cat: 'Brust', tags: ['push', 'brust', 'kurzhantel'] },
+
+      // RÜCKEN & NACKEN (18)
+      { name: 'Klimmzüge (Obergriff breit)', cat: 'Rücken', tags: ['pull', 'rücken', 'eigengewicht', 'oberkörper'] },
+      { name: 'Klimmzüge (Untergriff / Chin-Ups)', cat: 'Rücken', tags: ['pull', 'rücken', 'bizeps', 'eigengewicht'] },
+      { name: 'Latzug zur Brust (breiter Griff)', cat: 'Rücken', tags: ['pull', 'rücken', 'kabel', 'oberkörper'] },
+      { name: 'Latzug (enger Parallelgriff)', cat: 'Rücken', tags: ['pull', 'rücken', 'kabel'] },
+      { name: 'Einarmiger Latzug am Kabel', cat: 'Rücken', tags: ['pull', 'rücken', 'kabel'] },
+      { name: 'Überzüge am Kabelzug (Straight-Arm Pulldown)', cat: 'Rücken', tags: ['pull', 'rücken', 'kabel'] },
+      { name: 'Langhantel-Rudern (vorgebeugt)', cat: 'Rücken', tags: ['pull', 'rücken', 'langhantel', 'oberkörper'] },
+      { name: 'Pendlay Rows (Langhantel)', cat: 'Rücken', tags: ['pull', 'rücken', 'langhantel'] },
+      { name: 'Kabelrudern sitzend (enger Griff)', cat: 'Rücken', tags: ['pull', 'rücken', 'kabel', 'oberkörper'] },
+      { name: 'Kabelrudern sitzend (breiter Griff für oberen Rücken)', cat: 'Rücken', tags: ['pull', 'rücken', 'kabel'] },
+      { name: 'T-Bar Rudern (brustgestützt oder frei)', cat: 'Rücken', tags: ['pull', 'rücken', 'maschine'] },
+      { name: 'Rudermaschine (Chest-Supported Row)', cat: 'Rücken', tags: ['pull', 'rücken', 'maschine'] },
+      { name: 'Einarmiges Kurzhantel-Rudern', cat: 'Rücken', tags: ['pull', 'rücken', 'kurzhantel'] },
+      { name: 'Kreuzheben (Klassisches Deadlift)', cat: 'Rücken', tags: ['pull', 'rücken', 'beine', 'langhantel'] },
+      { name: 'Rack Pulls', cat: 'Rücken', tags: ['pull', 'rücken', 'langhantel'] },
+      { name: 'Hyperextensions (Rückenstrecker 45°)', cat: 'Rücken', tags: ['pull', 'rücken', 'unterer rücken'] },
+      { name: 'Kurzhantel-Shrugs (Nackenziehen)', cat: 'Rücken', tags: ['pull', 'nacken', 'kurzhantel'] },
+      { name: 'Langhantel-Shrugs', cat: 'Rücken', tags: ['pull', 'nacken', 'langhantel'] },
+
+      // BEINE (16)
+      { name: 'Kniebeugen (Langhantel High-/Low-Bar Squats)', cat: 'Beine', tags: ['legs', 'beine', 'langhantel', 'unterkörper'] },
+      { name: 'Frontkniebeugen (Front Squats)', cat: 'Beine', tags: ['legs', 'beine', 'langhantel'] },
+      { name: 'Hackenschmidt-Kniebeuge (Hack Squat)', cat: 'Beine', tags: ['legs', 'beine', 'maschine', 'unterkörper'] },
+      { name: 'Pendulum Squat', cat: 'Beine', tags: ['legs', 'beine', 'maschine'] },
+      { name: 'Beinpresse (45 Grad)', cat: 'Beine', tags: ['legs', 'beine', 'maschine', 'unterkörper'] },
+      { name: 'Beinpresse (horizontal / sitzend)', cat: 'Beine', tags: ['legs', 'beine', 'maschine'] },
+      { name: 'Bulgarian Split Squats (Kurzhantel/Multipresse)', cat: 'Beine', tags: ['legs', 'beine', 'po', 'kurzhantel'] },
+      { name: 'Ausfallschritte / Walking Lunges', cat: 'Beine', tags: ['legs', 'beine', 'po', 'kurzhantel'] },
+      { name: 'Goblet Squats (Kurzhantel/Kettlebell)', cat: 'Beine', tags: ['legs', 'beine', 'kurzhantel'] },
+      { name: 'Beinstrecker (Leg Extension)', cat: 'Beine', tags: ['legs', 'beine', 'maschine'] },
+      { name: 'Beinbeuger sitzend (Seated Leg Curl)', cat: 'Beine', tags: ['legs', 'beine', 'maschine', 'unterkörper'] },
+      { name: 'Beinbeuger liegend (Lying Leg Curl)', cat: 'Beine', tags: ['legs', 'beine', 'maschine'] },
+      { name: 'Rumänisches Kreuzheben (RDL - Langhantel)', cat: 'Beine', tags: ['legs', 'beine', 'po', 'langhantel', 'unterkörper'] },
+      { name: 'Rumänisches Kreuzheben (Kurzhanteln)', cat: 'Beine', tags: ['legs', 'beine', 'po', 'kurzhantel'] },
+      { name: 'Wadenheben stehend (Maschine/Multipresse)', cat: 'Beine', tags: ['legs', 'beine', 'waden', 'maschine'] },
+      { name: 'Wadenheben sitzend', cat: 'Beine', tags: ['legs', 'beine', 'waden', 'maschine'] },
+
+      // PO / GLUTES (8)
+      { name: 'Hip Thrusts (Langhantel / Maschine)', cat: 'Po', tags: ['legs', 'po', 'glutes', 'langhantel', 'unterkörper'] },
+      { name: 'KAS Glute Bridge', cat: 'Po', tags: ['legs', 'po', 'glutes', 'langhantel'] },
+      { name: 'Glute Kickbacks am Kabelzug', cat: 'Po', tags: ['legs', 'po', 'glutes', 'kabel'] },
+      { name: 'Abduktoren-Maschine (nach außen)', cat: 'Po', tags: ['legs', 'po', 'glutes', 'maschine'] },
+      { name: 'Adduktoren-Maschine (nach innen)', cat: 'Po', tags: ['legs', 'beine', 'maschine'] },
+      { name: 'Step-Ups auf Box (Kurzhantel/Kabel)', cat: 'Po', tags: ['legs', 'po', 'glutes', 'kurzhantel'] },
+      { name: 'Sumo-Kreuzheben', cat: 'Po', tags: ['legs', 'po', 'beine', 'langhantel'] },
+      { name: 'Hyperextensions (rund für Po-Fokus)', cat: 'Po', tags: ['legs', 'po', 'glutes'] },
+
+      // SCHULTERN (12)
+      { name: 'Schulterdrücken (Kurzhanteln sitzend)', cat: 'Schultern', tags: ['push', 'schultern', 'kurzhantel', 'oberkörper'] },
+      { name: 'Military Press / Overhead Press (Langhantel stehend)', cat: 'Schultern', tags: ['push', 'schultern', 'langhantel'] },
+      { name: 'Schulterpresse (Maschine / Multipresse)', cat: 'Schultern', tags: ['push', 'schultern', 'maschine'] },
+      { name: 'Arnold Press (Kurzhanteln)', cat: 'Schultern', tags: ['push', 'schultern', 'kurzhantel'] },
+      { name: 'Seitheben (Kurzhanteln stehend/sitzend)', cat: 'Schultern', tags: ['push', 'schultern', 'kurzhantel', 'oberkörper'] },
+      { name: 'Seitheben am Kabelzug (einarmig)', cat: 'Schultern', tags: ['push', 'schultern', 'kabel', 'oberkörper'] },
+      { name: 'Seitheben-Maschine', cat: 'Schultern', tags: ['push', 'schultern', 'maschine'] },
+      { name: 'Frontheben (Kurzhantel / Kabel / Scheibe)', cat: 'Schultern', tags: ['push', 'schultern', 'kurzhantel'] },
+      { name: 'Aufrechtes Rudern (Upright Row)', cat: 'Schultern', tags: ['pull', 'schultern', 'kabel'] },
+      { name: 'Face Pulls am Seil (Hintere Schulter)', cat: 'Schultern', tags: ['pull', 'schultern', 'kabel', 'oberkörper'] },
+      { name: 'Reverse Butterfly (Maschine für hintere Schulter)', cat: 'Schultern', tags: ['pull', 'schultern', 'maschine'] },
+      { name: 'Vorgebeugtes Seitheben (Rear Delt Flys)', cat: 'Schultern', tags: ['pull', 'schultern', 'kurzhantel'] },
+
+      // BIZEPS & UNTERARME (11)
+      { name: 'Langhantel-Bizepscurls (stehend)', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'langhantel'] },
+      { name: 'SZ-Stangen Bizepscurls', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'langhantel', 'oberkörper'] },
+      { name: 'Kurzhantel-Bizepscurls (alternierend)', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'kurzhantel'] },
+      { name: 'Incline Dumbbell Curls (Schrägbank-Curls)', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'kurzhantel', 'oberkörper'] },
+      { name: 'Hammercurls (Kurzhantel oder Seil)', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'kurzhantel'] },
+      { name: 'Preacher Curls (Scottbank SZ/Maschine)', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'maschine'] },
+      { name: 'Bayesian Cable Curls (Kabelzug hinter dem Körper)', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'kabel'] },
+      { name: 'Spider Curls (bauchlings auf Schrägbank)', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'kurzhantel'] },
+      { name: 'Konzentrationscurls', cat: 'Bizeps', tags: ['pull', 'bizeps', 'arme', 'kurzhantel'] },
+      { name: 'Reverse Curls (Obergriff für Unterarme)', cat: 'Bizeps', tags: ['pull', 'bizeps', 'unterarme'] },
+      { name: 'Handgelenk-Curls (Wrist Curls)', cat: 'Bizeps', tags: ['pull', 'unterarme'] },
+
+      // TRIZEPS (9)
+      { name: 'Trizepsdrücken am Seil (Rope Pushdowns)', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'kabel', 'oberkörper'] },
+      { name: 'Trizepsdrücken mit gerader Stange / V-Griff', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'kabel'] },
+      { name: 'Überkopf-Trizepsstrecken am Kabelzug (Overhead Extension)', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'kabel', 'oberkörper'] },
+      { name: 'French Press / Skullcrushers (SZ-Stange liegend)', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'langhantel'] },
+      { name: 'Enges Bankdrücken (Close-Grip Bench Press)', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'langhantel'] },
+      { name: 'Dips (aufrecht / Dip-Maschine für Trizeps)', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'maschine'] },
+      { name: 'Einarmiges Trizepsdrücken am Kabel (Unilateral)', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'kabel'] },
+      { name: 'Kurzhantel Überkopf-Trizepsdrücken', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'kurzhantel'] },
+      { name: 'JM Press (Multipresse/Langhantel)', cat: 'Trizeps', tags: ['push', 'trizeps', 'arme', 'langhantel'] },
+
+      // BAUCH & CORE (8)
+      { name: 'Beinheben hängend (Hanging Leg Raises)', cat: 'Core', tags: ['core', 'bauch', 'eigengewicht'] },
+      { name: 'Crunches am Kabelzug (Kneeling Cable Crunch)', cat: 'Core', tags: ['core', 'bauch', 'kabel'] },
+      { name: 'Bauchmaschine (Ab Crunch Machine)', cat: 'Core', tags: ['core', 'bauch', 'maschine'] },
+      { name: 'Ab-Wheel Rollouts (Bauchroller)', cat: 'Core', tags: ['core', 'bauch'] },
+      { name: 'Plank (Unterarmstütz)', cat: 'Core', tags: ['core', 'bauch', 'eigengewicht'] },
+      { name: 'Russian Twists (mit Gewicht)', cat: 'Core', tags: ['core', 'bauch'] },
+      { name: 'Woodchoppers am Kabelzug (Seitliche Bauchmuskeln)', cat: 'Core', tags: ['core', 'bauch', 'kabel'] },
+      { name: 'Sit-Ups auf Negativbank', cat: 'Core', tags: ['core', 'bauch', 'eigengewicht'] },
+
+      // CARDIO & CONDITIONING (5)
+      { name: 'Laufband (Steigungs-Gehen / Joggen)', cat: 'Cardio', tags: ['cardio', 'ausdauer'] },
+      { name: 'StairMaster (Treppensteiger)', cat: 'Cardio', tags: ['cardio', 'ausdauer', 'po'] },
+      { name: 'Fahrrad-Ergometer / AirBike', cat: 'Cardio', tags: ['cardio', 'ausdauer'] },
+      { name: 'Rudergerät (Concept2 Rowing)', cat: 'Cardio', tags: ['cardio', 'ausdauer', 'rücken'] },
+      { name: 'Kettlebell Swings', cat: 'Cardio', tags: ['cardio', 'po', 'rücken'] }
+    ];
+
+    const defaultGymPlans = [
+      { id: 'p_push', name: 'Push Day (Brust, Schultern, Trizeps)', exercises: ['Bankdrücken (Langhantel)', 'Kurzhantel-Schrägbankdrücken', 'Cable Flys (Kabelzug von oben nach unten)', 'Schulterdrücken (Kurzhanteln sitzend)', 'Seitheben am Kabelzug (einarmig)', 'Trizepsdrücken am Seil (Rope Pushdowns)', 'Überkopf-Trizepsstrecken am Kabelzug (Overhead Extension)'] },
+      { id: 'p_pull', name: 'Pull Day (Rücken, hintere Schulter, Bizeps)', exercises: ['Klimmzüge (Obergriff breit)', 'Langhantel-Rudern (vorgebeugt)', 'Latzug (enger Parallelgriff)', 'Kabelrudern sitzend (enger Griff)', 'Face Pulls am Seil (Hintere Schulter)', 'SZ-Stangen Bizepscurls', 'Incline Dumbbell Curls (Schrägbank-Curls)'] },
+      { id: 'p_legs', name: 'Leg Day (Beine, Glutes & Core)', exercises: ['Kniebeugen (Langhantel High-/Low-Bar Squats)', 'Rumänisches Kreuzheben (RDL - Langhantel)', 'Beinpresse (45 Grad)', 'Beinstrecker (Leg Extension)', 'Beinbeuger sitzend (Seated Leg Curl)', 'Hip Thrusts (Langhantel / Maschine)', 'Wadenheben stehend (Maschine/Multipresse)', 'Beinheben hängend (Hanging Leg Raises)'] },
+      { id: 'p_upper', name: 'Oberkörper Komplett (Upper Body)', exercises: ['Bankdrücken (Langhantel)', 'Latzug zur Brust (breiter Griff)', 'Kurzhantel-Schrägbankdrücken', 'Kabelrudern sitzend (enger Griff)', 'Seitheben (Kurzhanteln stehend/sitzend)', 'SZ-Stangen Bizepscurls', 'Trizepsdrücken am Seil (Rope Pushdowns)'] }
     ];
 
     let appData = {
       profile: { gender: 'm', age: 28, weight: 78, height: 180, activity: 1.55, goal: 0, apiKey: '' },
       targets: { kcal: 2500, p: 156, c: 290, f: 70 },
+      customFoods: [],
+      customExercises: [],
+      gymPlans: defaultGymPlans,
+      workoutHistory: [],
+      activeWorkout: { title: 'Freies Training', exercises: [] },
       days: {}
     };
 
     let currentDate = new Date().toISOString().split('T')[0];
+    let calViewYear = new Date().getFullYear();
+    let calViewMonth = new Date().getMonth(); // 0-11
+    let currentFoodCategory = 'Alle';
+    let selectedFoodItem = null;
+    let currentExerciseFilter = 'Alle';
+    let draftPlanList = [];
+
+    // Chart Instances
     let calChartInstance = null;
     let weightChartInstance = null;
+    let exerciseProgressChartInstance = null;
+    let strengthVolumeChartInstance = null;
     let html5QrCode = null;
 
+    // Rest Timer State
+    let timerTotalSec = 90;
+    let timerRemainingSec = 90;
+    let timerInterval = null;
+    let autoTimerDebounce = null;
+
+    function getAllExercises() {
+      return [...(appData.customExercises || []), ...defaultExerciseDB];
+    }
+
+    function getAllFoods() {
+      return [...(appData.customFoods || []), ...defaultFoodDB];
+    }
+
+    // Epley 1RM Formel
+    function compute1RM(weight, reps) {
+      const w = parseFloat(weight) || 0;
+      const r = parseFloat(reps) || 0;
+      if (w <= 0 || r <= 0) return 0;
+      if (r === 1) return w;
+      return Math.round(w * (1 + r / 30) * 10) / 10;
+    }
+
     function initApp() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) { try { appData = JSON.parse(saved); } catch (e) {} }
+      const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('nutriai_gym_pro_v2') || localStorage.getItem('nutriai_pro_v1');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          appData = { ...appData, ...parsed };
+          if (!appData.gymPlans || appData.gymPlans.length === 0) appData.gymPlans = defaultGymPlans;
+          if (!appData.customFoods) appData.customFoods = [];
+          if (!appData.customExercises) appData.customExercises = [];
+          if (!appData.workoutHistory) appData.workoutHistory = [];
+          if (!appData.activeWorkout) appData.activeWorkout = { title: 'Freies Training', exercises: [] };
+        } catch (e) {}
+      }
+
       document.getElementById('currentDateInput').value = currentDate;
+      const dObj = new Date(currentDate);
+      calViewYear = dObj.getFullYear();
+      calViewMonth = dObj.getMonth();
+
       document.getElementById('gender').value = appData.profile.gender;
       document.getElementById('age').value = appData.profile.age;
       document.getElementById('weight').value = appData.profile.weight;
@@ -333,8 +839,12 @@
       document.getElementById('activity').value = appData.profile.activity;
       document.getElementById('goal').value = appData.profile.goal;
       document.getElementById('apiKeyInput').value = appData.profile.apiKey || '';
+
       ensureDay(currentDate);
       calculateNeeds();
+      renderFoodDatabase();
+      initGymModule();
+      calculate1RM();
     }
 
     function ensureDay(dateStr) {
@@ -360,13 +870,753 @@
     }
 
     function switchTab(tab) {
-      ['dashboard', 'scanner', 'stats', 'settings'].forEach(t => {
+      ['dashboard', 'scanner', 'gym', 'stats', 'settings'].forEach(t => {
         document.getElementById('tab-' + t).classList.toggle('active', t === tab);
         document.getElementById('nav-' + t).className = t === tab ? 'flex flex-col items-center text-emerald-400 font-semibold' : 'flex flex-col items-center text-slate-400';
       });
-      if (tab === 'stats') renderCharts();
+      if (tab === 'stats') {
+        renderActivityCalendar();
+        populateProgressExerciseDropdown();
+        renderGymProgressCharts();
+        renderCharts();
+      }
     }
 
+    // ==========================================
+    // MANUELLE LEBENSMITTEL-SUCHE
+    // ==========================================
+    function setFoodCategory(cat) {
+      currentFoodCategory = cat;
+      document.querySelectorAll('.fcat-btn').forEach(btn => {
+        btn.className = 'fcat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap';
+      });
+      const activeBtn = document.getElementById('fcat-' + cat);
+      if (activeBtn) activeBtn.className = 'fcat-btn bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap';
+      renderFoodDatabase();
+    }
+
+    function renderFoodDatabase() {
+      const query = (document.getElementById('foodSearchInput').value || '').toLowerCase().trim();
+      const filtered = getAllFoods().filter(item => {
+        const matchesCat = currentFoodCategory === 'Alle' || item.cat === currentFoodCategory;
+        const matchesQuery = !query || item.name.toLowerCase().includes(query) || (item.keywords && item.keywords.some(k => k.includes(query)));
+        return matchesCat && matchesQuery;
+      });
+
+      const container = document.getElementById('foodDbList');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Kein Lebensmittel gefunden. Nutze "+ Eigenes Produkt"!</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => `
+        <div onclick="selectFoodFromDB('${item.id}')" class="flex justify-between items-center bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 px-3 py-2 rounded-xl cursor-pointer transition">
+          <div>
+            <div class="text-xs font-semibold text-slate-100">${item.name}</div>
+            <div class="text-[10px] text-slate-400">100g: <strong class="text-emerald-400">${item.kcal} kcal</strong> • P: ${item.p}g | C: ${item.c}g | F: ${item.f}g</div>
+          </div>
+          <span class="text-xs bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-lg font-bold">Wählen</span>
+        </div>
+      `).join('');
+    }
+
+    function selectFoodFromDB(id) {
+      selectedFoodItem = getAllFoods().find(f => f.id === id);
+      if (!selectedFoodItem) return;
+      document.getElementById('selectedFoodPanel').classList.remove('hidden');
+      document.getElementById('selFoodName').innerText = selectedFoodItem.name;
+      document.getElementById('selFoodGrams').value = selectedFoodItem.unitWeight || 100;
+      updateSelectedFoodPreview();
+    }
+
+    function updateSelectedFoodPreview() {
+      if (!selectedFoodItem) return;
+      const g = parseFloat(document.getElementById('selFoodGrams').value) || 0;
+      const factor = g / 100;
+      document.getElementById('selFoodPreview').innerText = `${Math.round(selectedFoodItem.kcal * factor)} kcal (P:${Math.round(selectedFoodItem.p * factor)}g C:${Math.round(selectedFoodItem.c * factor)}g F:${Math.round(selectedFoodItem.f * factor)}g)`;
+    }
+
+    function confirmAddSelectedFood() {
+      if (!selectedFoodItem) return;
+      const g = parseFloat(document.getElementById('selFoodGrams').value) || 100;
+      const factor = g / 100;
+      addMeal(`${selectedFoodItem.name} (${g}g)`, Math.round(selectedFoodItem.kcal * factor), Math.round(selectedFoodItem.p * factor), Math.round(selectedFoodItem.c * factor), Math.round(selectedFoodItem.f * factor), '🔍 Datenbank');
+      document.getElementById('selectedFoodPanel').classList.add('hidden');
+      switchTab('dashboard');
+    }
+
+    function toggleCustomFoodModal() { document.getElementById('customFoodBox').classList.toggle('hidden'); }
+
+    function saveCustomFood() {
+      const name = document.getElementById('cfName').value.trim();
+      const kcal = parseFloat(document.getElementById('cfKcal').value) || 0;
+      const p = parseFloat(document.getElementById('cfP').value) || 0;
+      const c = parseFloat(document.getElementById('cfC').value) || 0;
+      const f = parseFloat(document.getElementById('cfF').value) || 0;
+      if (!name) return;
+      appData.customFoods.unshift({ id: 'cf_' + Date.now(), cat: 'Alle', keywords: [name.toLowerCase()], name, kcal, p, c, f });
+      saveStorage();
+      ['cfName', 'cfKcal', 'cfP', 'cfC', 'cfF'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('customFoodBox').classList.add('hidden');
+      renderFoodDatabase();
+    }
+
+    // ==========================================
+    // GYM TRACKER, KI-WORKOUT-GENERATOR & 1RM
+    // ==========================================
+    function initGymModule() {
+      refreshLiveExerciseDropdown();
+      renderGymPlanSelect();
+      renderExerciseBuilder();
+      renderSavedPlans();
+      renderLiveWorkout();
+      renderWorkoutHistory();
+      updateTimerDisplay();
+    }
+
+    function refreshLiveExerciseDropdown() {
+      const select = document.getElementById('liveAddExerciseSelect');
+      select.innerHTML = getAllExercises().map(e => `<option value="${e.name}">${e.cat}: ${e.name}</option>`).join('');
+    }
+
+    function switchGymSubTab(sub) {
+      ['live', 'plans', 'onerm', 'history'].forEach(s => {
+        document.getElementById('gym-view-' + s).classList.toggle('hidden', s !== sub);
+        document.getElementById('gymsub-' + s).className = s === sub ? 'bg-emerald-600 text-white py-2 rounded-lg' : 'text-slate-400 py-2 rounded-lg';
+      });
+    }
+
+    // REST TIMER MIT AUTO-START
+    function setRestDuration(sec) {
+      pauseRestTimer();
+      timerTotalSec = sec;
+      timerRemainingSec = sec;
+      updateTimerDisplay();
+    }
+
+    function startRestTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      if (timerRemainingSec <= 0) timerRemainingSec = timerTotalSec;
+      document.getElementById('timerStartBtn').innerText = 'Läuft...';
+      timerInterval = setInterval(() => {
+        timerRemainingSec--;
+        updateTimerDisplay();
+        if (timerRemainingSec <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          document.getElementById('timerStartBtn').innerText = 'Start';
+          playTimerBeep();
+        }
+      }, 1000);
+    }
+
+    function triggerAutoRestTimer() {
+      const autoEnabled = document.getElementById('autoStartTimerToggle').checked;
+      if (!autoEnabled) return;
+      timerRemainingSec = timerTotalSec;
+      startRestTimer();
+    }
+
+    function pauseRestTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = null;
+      document.getElementById('timerStartBtn').innerText = 'Start';
+    }
+
+    function resetRestTimer() {
+      pauseRestTimer();
+      timerRemainingSec = timerTotalSec;
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const m = String(Math.floor(timerRemainingSec / 60)).padStart(2, '0');
+      const s = String(timerRemainingSec % 60).padStart(2, '0');
+      const disp = document.getElementById('timerDisplay');
+      disp.innerText = `${m}:${s}`;
+      disp.className = timerRemainingSec === 0 ? 'text-3xl font-extrabold font-mono text-emerald-400 animate-pulse mt-0.5' : 'text-3xl font-extrabold font-mono text-white mt-0.5';
+      const pct = timerTotalSec > 0 ? (timerRemainingSec / timerTotalSec) * 100 : 0;
+      document.getElementById('timerBar').style.width = `${pct}%`;
+    }
+
+    function playTimerBeep() {
+      try {
+        if (navigator.vibrate) navigator.vibrate([250, 100, 250]);
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.25, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.45);
+      } catch (e) {}
+    }
+
+    // 1RM RECHNER
+    function calculate1RM() {
+      const w = parseFloat(document.getElementById('rmWeightInput').value) || 0;
+      const r = parseFloat(document.getElementById('rmRepsInput').value) || 0;
+      const oneRM = compute1RM(w, r);
+      document.getElementById('rmResultMain').innerText = `${oneRM} kg`;
+
+      const pcts = [
+        { pct: 95, reps: '2 Wdh.' },
+        { pct: 90, reps: '3-4 Wdh.' },
+        { pct: 85, reps: '5-6 Wdh.' },
+        { pct: 80, reps: '7-8 Wdh.' },
+        { pct: 75, reps: '9-10 Wdh.' },
+        { pct: 70, reps: '11-12 Wdh.' }
+      ];
+      document.getElementById('rmPercentageTable').innerHTML = pcts.map(item => `
+        <div class="bg-slate-800/80 border border-slate-700/60 px-3 py-2 rounded-xl flex justify-between items-center">
+          <span class="text-slate-400">${item.pct}% (${item.reps})</span>
+          <strong class="text-emerald-400">${Math.round(oneRM * (item.pct / 100) * 10) / 10} kg</strong>
+        </div>
+      `).join('');
+    }
+
+    // KI WORKOUT GENERATOR (GEMINI API + SMART OFFLINE ENGINE)
+    async function generateWorkoutWithAI(startImmediately) {
+      const promptText = document.getElementById('aiGymPromptInput').value.trim();
+      if (!promptText) return;
+      const statusEl = document.getElementById('aiGymStatus');
+      statusEl.innerText = 'KI erstellt Workout...';
+
+      const apiKey = (appData.profile.apiKey || '').trim();
+      const allExNames = getAllExercises().map(e => e.name);
+
+      if (apiKey) {
+        try {
+          const sysPrompt = `Erstelle aus folgendem Wunsch einen Trainingsplan. Gib NUR valides JSON zurück im Format: {"name": "Name des Workouts", "exercises": ["Übung 1", "Übung 2", ...]}. Bevorzuge Übungen aus dieser Liste: ${allExNames.slice(0, 60).join(', ')}. Nutzer-Wunsch: "${promptText}"`;
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: sysPrompt }] }],
+              generationConfig: { responseMimeType: "application/json" }
+            })
+          });
+          const data = await res.json();
+          const generated = JSON.parse(data.candidates[0].content.parts[0].text);
+          if (generated && generated.exercises && generated.exercises.length > 0) {
+            finalizeAIGeneratedPlan(generated.name || 'KI-Workout', generated.exercises, startImmediately);
+            statusEl.innerText = 'KI-Plan erstellt!';
+            document.getElementById('aiGymPromptInput').value = '';
+            return;
+          }
+        } catch (err) {
+          console.warn('Nutze lokalen KI-Workout-Generator:', err);
+        }
+      }
+
+      // Smarter Offline-Generator: erkennt Muskelgruppen, Equipment & Übungsanzahl aus dem Text
+      const lower = promptText.toLowerCase();
+      const countMatch = lower.match(/(\d+)\s*(übungen|übung)/);
+      const targetCount = countMatch ? Math.min(12, Math.max(2, parseInt(countMatch[1]))) : 6;
+
+      let pool = [];
+      const allEx = getAllExercises();
+
+      const catChecks = [
+        { keys: ['brust', 'chest', 'bank'], cat: 'Brust' },
+        { keys: ['rücken', 'back', 'lat', 'klimmzug', 'rudern'], cat: 'Rücken' },
+        { keys: ['bein', 'legs', 'leg', 'quad', 'kniebeuge', 'squat'], cat: 'Beine' },
+        { keys: ['po', 'glute', 'booty', 'hip'], cat: 'Po' },
+        { keys: ['schulter', 'shoulder', 'delt'], cat: 'Schultern' },
+        { keys: ['bizeps', 'bicep', 'arm', 'curl'], cat: 'Bizeps' },
+        { keys: ['trizeps', 'tricep', 'arm', 'dip'], cat: 'Trizeps' },
+        { keys: ['bauch', 'core', 'sixpack', 'abs'], cat: 'Core' },
+        { keys: ['cardio', 'ausdauer', 'hiit'], cat: 'Cardio' }
+      ];
+
+      catChecks.forEach(c => {
+        if (c.keys.some(k => lower.includes(k))) {
+          pool.push(...allEx.filter(e => e.cat === c.cat));
+        }
+      });
+
+      // Split-Keywords (Push, Pull, Oberkörper, Unterkörper, Ganzkörper)
+      if (lower.includes('push')) pool.push(...allEx.filter(e => e.tags && e.tags.includes('push')));
+      if (lower.includes('pull')) pool.push(...allEx.filter(e => e.tags && e.tags.includes('pull')));
+      if (lower.includes('oberkörper') || lower.includes('upper')) pool.push(...allEx.filter(e => e.tags && e.tags.includes('oberkörper')));
+      if (lower.includes('unterkörper') || lower.includes('lower')) pool.push(...allEx.filter(e => e.tags && e.tags.includes('unterkörper')));
+
+      // Equipment-Filter falls gewünscht (z.B. "nur Kurzhantel" oder "Maschine")
+      if (lower.includes('kurzhantel')) {
+        const kh = pool.filter(e => e.tags && e.tags.includes('kurzhantel'));
+        if (kh.length >= 3) pool = kh;
+      } else if (lower.includes('kabel')) {
+        const kb = pool.filter(e => e.tags && e.tags.includes('kabel'));
+        if (kb.length >= 3) pool = kb;
+      }
+
+      if (pool.length === 0) pool = allEx;
+
+      // Duplikate entfernen und passend auswählen
+      const uniqueNames = [...new Set(pool.map(e => e.name))];
+      const chosen = uniqueNames.slice(0, targetCount);
+      const planTitle = `🤖 KI: ${promptText.slice(0, 28)}${promptText.length > 28 ? '...' : ''}`;
+
+      finalizeAIGeneratedPlan(planTitle, chosen, startImmediately);
+      statusEl.innerText = 'Workout generiert!';
+      document.getElementById('aiGymPromptInput').value = '';
+    }
+
+    function finalizeAIGeneratedPlan(name, exercises, startImmediately) {
+      const newPlan = { id: 'ai_plan_' + Date.now(), name, exercises };
+      appData.gymPlans.unshift(newPlan);
+      saveStorage();
+      renderGymPlanSelect();
+      renderSavedPlans();
+      if (startImmediately) {
+        loadPlanIntoLiveWorkout(newPlan.id);
+        switchGymSubTab('live');
+      }
+    }
+
+    // LIVE WORKOUT LOGIK
+    function renderGymPlanSelect() {
+      const sel = document.getElementById('loadPlanSelect');
+      sel.innerHTML = `<option value="">📋 Plan laden...</option>` + appData.gymPlans.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    function loadPlanIntoLiveWorkout(planId) {
+      if (!planId) return;
+      const plan = appData.gymPlans.find(p => p.id === planId);
+      if (!plan) return;
+      appData.activeWorkout = {
+        title: plan.name,
+        exercises: plan.exercises.map(exName => ({
+          name: exName,
+          sets: [
+            { weight: 60, reps: 10, done: false },
+            { weight: 60, reps: 10, done: false },
+            { weight: 60, reps: 10, done: false }
+          ]
+        }))
+      };
+      document.getElementById('loadPlanSelect').value = '';
+      saveStorage();
+      renderLiveWorkout();
+    }
+
+    function addExerciseToLive() {
+      const exName = document.getElementById('liveAddExerciseSelect').value;
+      if (!exName) return;
+      appData.activeWorkout.exercises.push({
+        name: exName,
+        sets: [
+          { weight: 40, reps: 10, done: false },
+          { weight: 40, reps: 10, done: false },
+          { weight: 40, reps: 10, done: false }
+        ]
+      });
+      saveStorage();
+      renderLiveWorkout();
+    }
+
+    function addSetToLiveExercise(exIdx) {
+      const sets = appData.activeWorkout.exercises[exIdx].sets;
+      const last = sets.length > 0 ? sets[sets.length - 1] : { weight: 40, reps: 10 };
+      sets.push({ weight: last.weight, reps: last.reps, done: false });
+      saveStorage();
+      renderLiveWorkout();
+    }
+
+    function removeLiveExercise(exIdx) {
+      appData.activeWorkout.exercises.splice(exIdx, 1);
+      saveStorage();
+      renderLiveWorkout();
+    }
+
+    // Wenn Gewicht oder Wiederholungen eingetragen werden -> Satz automatisch als aktiv werten, 1RM aktualisieren & Timer automatisch starten!
+    function updateSetData(exIdx, setIdx, field, val) {
+      const set = appData.activeWorkout.exercises[exIdx].sets[setIdx];
+      set[field] = parseFloat(val) || 0;
+      if (set.weight > 0 && set.reps > 0) {
+        set.done = true;
+      }
+      saveStorage();
+      updateLiveStatsOnly();
+
+      // Live 1RM Badge in der Zeile aktualisieren
+      const badgeEl = document.getElementById(`onerm-${exIdx}-${setIdx}`);
+      if (badgeEl) badgeEl.innerText = `${compute1RM(set.weight, set.reps)} kg`;
+
+      // Automatischer Timer-Start nach kurzer Tipp-Pause (800ms), damit man in Ruhe zweistellige Zahlen eintippen kann
+      if (autoTimerDebounce) clearTimeout(autoTimerDebounce);
+      autoTimerDebounce = setTimeout(() => {
+        triggerAutoRestTimer();
+      }, 800);
+    }
+
+    function toggleSetDone(exIdx, setIdx) {
+      const set = appData.activeWorkout.exercises[exIdx].sets[setIdx];
+      set.done = !set.done;
+      saveStorage();
+      renderLiveWorkout();
+      if (set.done) {
+        triggerAutoRestTimer();
+      }
+    }
+
+    function updateLiveStatsOnly() {
+      let vol = 0, doneSets = 0;
+      appData.activeWorkout.exercises.forEach(ex => {
+        ex.sets.forEach(s => {
+          if (s.done) {
+            vol += (s.weight * s.reps);
+            doneSets++;
+          }
+        });
+      });
+      document.getElementById('liveVolumeDisplay').innerText = `${Math.round(vol)} kg`;
+      document.getElementById('liveSetsDisplay').innerText = doneSets;
+    }
+
+    function renderLiveWorkout() {
+      document.getElementById('activeWorkoutTitle').innerText = appData.activeWorkout.title || 'Freies Training';
+      updateLiveStatsOnly();
+      const container = document.getElementById('liveExercisesContainer');
+      const finishBtn = document.getElementById('finishWorkoutBtn');
+
+      if (appData.activeWorkout.exercises.length === 0) {
+        finishBtn.classList.add('hidden');
+        container.innerHTML = `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center text-xs text-slate-400">Wähle oben rechts einen Trainingsplan, nutze den KI-Generator unter "📋 Pläne & KI" oder füge direkt eine Übung hinzu!</div>`;
+        return;
+      }
+
+      finishBtn.classList.remove('hidden');
+      container.innerHTML = appData.activeWorkout.exercises.map((ex, exIdx) => `
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 space-y-2.5 shadow-lg">
+          <div class="flex justify-between items-center">
+            <h4 class="text-xs font-bold text-emerald-400">${exIdx + 1}. ${ex.name}</h4>
+            <button onclick="removeLiveExercise(${exIdx})" class="text-xs text-slate-500 hover:text-red-400">✕</button>
+          </div>
+          <div class="grid grid-cols-12 gap-1 text-[10px] text-slate-400 font-semibold px-1">
+            <div class="col-span-2">Satz</div>
+            <div class="col-span-3 text-center">kg</div>
+            <div class="col-span-3 text-center">Wdh.</div>
+            <div class="col-span-2 text-center">1RM</div>
+            <div class="col-span-2 text-right">✓</div>
+          </div>
+          <div class="space-y-1.5">
+            ${ex.sets.map((s, sIdx) => `
+              <div class="grid grid-cols-12 gap-1 items-center px-2 py-1.5 rounded-xl border ${s.done ? 'bg-emerald-950/40 border-emerald-500/40' : 'bg-slate-800/70 border-slate-700/60'}">
+                <div class="col-span-2 text-xs font-bold text-slate-300">#${sIdx + 1}</div>
+                <div class="col-span-3">
+                  <input type="number" step="0.5" value="${s.weight}" oninput="updateSetData(${exIdx},${sIdx}, 'weight', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-1 text-center text-xs font-bold text-white">
+                </div>
+                <div class="col-span-3">
+                  <input type="number" value="${s.reps}" oninput="updateSetData(${exIdx},${sIdx}, 'reps', this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg py-1 text-center text-xs font-bold text-white">
+                </div>
+                <div class="col-span-2 text-center">
+                  <span id="onerm-${exIdx}-${sIdx}" class="text-[10px] text-cyan-400 font-semibold">${compute1RM(s.weight, s.reps)} kg</span>
+                </div>
+                <div class="col-span-2 flex justify-end">
+                  <button onclick="toggleSetDone(${exIdx},${sIdx})" class="w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center ${s.done ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-slate-300'}">✓</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <button onclick="addSetToLiveExercise(${exIdx})" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-xl text-[11px] font-semibold">+ Satz hinzufügen</button>
+        </div>
+      `).join('');
+    }
+
+    function finishLiveWorkout() {
+      let vol = 0, doneSets = 0;
+      // Falls noch kein Satz manuell abgehakt wurde, zählen alle ausgefüllten Sätze
+      appData.activeWorkout.exercises.forEach(ex => {
+        ex.sets.forEach(s => {
+          if (s.done || (s.weight > 0 && s.reps > 0)) {
+            s.done = true;
+            vol += (s.weight * s.reps);
+            doneSets++;
+          }
+        });
+      });
+
+      const entry = {
+        id: Date.now(),
+        date: currentDate,
+        title: appData.activeWorkout.title,
+        volume: Math.round(vol),
+        sets: doneSets,
+        exercisesCount: appData.activeWorkout.exercises.length,
+        details: JSON.parse(JSON.stringify(appData.activeWorkout.exercises))
+      };
+
+      appData.workoutHistory.unshift(entry);
+      appData.activeWorkout = { title: 'Freies Training', exercises: [] };
+      saveStorage();
+      renderLiveWorkout();
+      renderWorkoutHistory();
+      switchTab('stats');
+    }
+
+    // TRAININGSPLAN-BAUKASTEN & EIGENE ÜBUNGEN
+    function toggleCustomExerciseBox() {
+      document.getElementById('customExBox').classList.toggle('hidden');
+    }
+
+    function saveCustomExercise() {
+      const name = document.getElementById('customExName').value.trim();
+      const cat = document.getElementById('customExCat').value;
+      if (!name) return;
+      appData.customExercises.unshift({ name, cat, tags: [cat.toLowerCase()] });
+      document.getElementById('customExName').value = '';
+      document.getElementById('customExBox').classList.add('hidden');
+      saveStorage();
+      refreshLiveExerciseDropdown();
+      renderExerciseBuilder();
+    }
+
+    function filterExerciseDB(cat) {
+      currentExerciseFilter = cat;
+      document.querySelectorAll('.excat-btn').forEach(btn => {
+        btn.className = 'excat-btn bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg whitespace-nowrap';
+      });
+      const active = document.getElementById('excat-' + cat);
+      if (active) active.className = 'excat-btn bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-semibold whitespace-nowrap';
+      renderExerciseBuilder();
+    }
+
+    function renderExerciseBuilder() {
+      const q = (document.getElementById('exerciseSearchInput').value || '').toLowerCase().trim();
+      const filtered = getAllExercises().filter(e => {
+        const matchCat = currentExerciseFilter === 'Alle' || e.cat === currentExerciseFilter;
+        const matchQ = !q || e.name.toLowerCase().includes(q) || e.cat.toLowerCase().includes(q);
+        return matchCat && matchQ;
+      });
+
+      document.getElementById('exerciseBuilderList').innerHTML = filtered.map(e => {
+        const safeName = e.name.replace(/'/g, "\\'");
+        return `
+        <div onclick="toggleExerciseInDraft('${safeName}')" class="flex justify-between items-center bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 px-3 py-2 rounded-xl cursor-pointer text-xs">
+          <div>
+            <span class="font-semibold text-slate-100">${e.name}</span>
+            <span class="text-[10px] text-slate-400 ml-1">(${e.cat})</span>
+          </div>
+          <span class="text-emerald-400 font-bold">${draftPlanList.includes(e.name) ? '✓ Gewählt' : '+'}</span>
+        </div>
+      `}).join('');
+
+      const draftBox = document.getElementById('draftPlanExercises');
+      if (draftPlanList.length === 0) {
+        draftBox.innerHTML = `<div class="text-slate-500">Noch keine Übungen ausgewählt.</div>`;
+      } else {
+        draftBox.innerHTML = `<div class="font-bold text-emerald-400 mb-1">Ausgewählte Übungen (${draftPlanList.length}):</div>` +
+          draftPlanList.map((name, i) => {
+            const safeName = name.replace(/'/g, "\\'");
+            return `<div class="flex justify-between bg-slate-800 px-2.5 py-1 rounded-lg"><span>${i + 1}. ${name}</span><button onclick="toggleExerciseInDraft('${safeName}')" class="text-red-400">✕</button></div>`;
+          }).join('');
+      }
+    }
+
+    function toggleExerciseInDraft(name) {
+      if (draftPlanList.includes(name)) draftPlanList = draftPlanList.filter(n => n !== name);
+      else draftPlanList.push(name);
+      renderExerciseBuilder();
+    }
+
+    function saveNewPlan() {
+      const name = document.getElementById('newPlanName').value.trim();
+      if (!name || draftPlanList.length === 0) return;
+      appData.gymPlans.unshift({ id: 'plan_' + Date.now(), name, exercises: [...draftPlanList] });
+      draftPlanList = [];
+      document.getElementById('newPlanName').value = '';
+      saveStorage();
+      renderGymPlanSelect();
+      renderExerciseBuilder();
+      renderSavedPlans();
+    }
+
+    function deleteGymPlan(id) {
+      appData.gymPlans = appData.gymPlans.filter(p => p.id !== id);
+      saveStorage();
+      renderGymPlanSelect();
+      renderSavedPlans();
+    }
+
+    function startPlanDirectly(id) {
+      loadPlanIntoLiveWorkout(id);
+      switchGymSubTab('live');
+    }
+
+    function renderSavedPlans() {
+      document.getElementById('savedPlansList').innerHTML = appData.gymPlans.map(p => `
+        <div class="bg-slate-800/80 border border-slate-700/70 p-3 rounded-xl space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-white">${p.name}</span>
+            <div class="flex gap-1.5">
+              <button onclick="startPlanDirectly('${p.id}')" class="bg-emerald-600 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold">▶ Starten</button>
+              <button onclick="deleteGymPlan('${p.id}')" class="text-slate-500 hover:text-red-400 px-1.5">✕</button>
+            </div>
+          </div>
+          <div class="text-[11px] text-slate-400">${p.exercises.join(' • ')}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderWorkoutHistory() {
+      const list = document.getElementById('workoutHistoryList');
+      if (appData.workoutHistory.length === 0) {
+        list.innerHTML = `<div class="text-slate-500 text-center py-6">Noch keine Workouts abgeschlossen.</div>`;
+        return;
+      }
+      list.innerHTML = appData.workoutHistory.map(w => `
+        <div class="bg-slate-800/80 border border-slate-700/70 p-3 rounded-xl space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-emerald-400">${w.title}</span>
+            <span class="text-[11px] text-slate-400">${w.date}</span>
+          </div>
+          <div class="text-slate-300">Gesamtvolumen: <strong>${w.volume} kg</strong> • Sätze: <strong>${w.sets}</strong> (${w.exercisesCount} Übungen)</div>
+        </div>
+      `).join('');
+    }
+
+    // ==========================================
+    // AKTIVITÄTS-KALENDER & GYM PROGRESS TRACKER
+    // ==========================================
+    function changeCalendarMonth(delta) {
+      calViewMonth += delta;
+      if (calViewMonth < 0) { calViewMonth = 11; calViewYear--; }
+      if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+      renderActivityCalendar();
+    }
+
+    function selectDateFromCalendar(dateStr) {
+      currentDate = dateStr;
+      document.getElementById('currentDateInput').value = currentDate;
+      ensureDay(currentDate);
+      updateDashboard();
+      switchTab('dashboard');
+    }
+
+    function renderActivityCalendar() {
+      const monthNames = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+      document.getElementById('calMonthLabel').innerText = `${monthNames[calViewMonth]} ${calViewYear}`;
+
+      const firstDay = new Date(calViewYear, calViewMonth, 1);
+      const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
+      // Montag = 0, Sonntag = 6
+      let startWeekday = (firstDay.getDay() + 6) % 7;
+
+      const gymDates = new Set(appData.workoutHistory.map(w => w.date));
+      let html = '';
+
+      for (let i = 0; i < startWeekday; i++) {
+        html += `<div class="p-2"></div>`;
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const mStr = String(calViewMonth + 1).padStart(2, '0');
+        const dStr = String(day).padStart(2, '0');
+        const fullDate = `${calViewYear}-${mStr}-${dStr}`;
+
+        const hasCalories = appData.days[fullDate] && appData.days[fullDate].meals && appData.days[fullDate].meals.length > 0;
+        const hasGym = gymDates.has(fullDate);
+        const isSelected = fullDate === currentDate;
+
+        html += `
+          <div onclick="selectDateFromCalendar('${fullDate}')" class="cursor-pointer rounded-xl py-1.5 px-1 border flex flex-col items-center justify-center transition ${isSelected ? 'bg-slate-800 border-emerald-500 text-white font-bold' : 'bg-slate-800/40 border-slate-800 text-slate-300 hover:bg-slate-800'}">
+            <span>${day}</span>
+            <div class="flex gap-1 mt-1 h-2 items-center">
+              ${hasCalories ? '<span class="w-2 h-2 rounded-full bg-emerald-400" title="Kalorien getrackt"></span>' : ''}
+              ${hasGym ? '<span class="w-2 h-2 rounded-full bg-cyan-400" title="Gym Workout"></span>' : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('calendarGrid').innerHTML = html;
+    }
+
+    function populateProgressExerciseDropdown() {
+      const sel = document.getElementById('progressExerciseSelect');
+      const currentVal = sel.value;
+      // Finde zuerst alle Übungen, die bereits in der Workout-Historie vorkommen
+      const loggedExercises = new Set();
+      appData.workoutHistory.forEach(w => {
+        if (w.details) w.details.forEach(ex => loggedExercises.add(ex.name));
+      });
+
+      const allNames = getAllExercises().map(e => e.name);
+      const sortedNames = [...loggedExercises, ...allNames.filter(n => !loggedExercises.has(n))];
+
+      sel.innerHTML = sortedNames.map(name => `<option value="${name}">${loggedExercises.has(name) ? '⭐ ' : ''}${name}</option>`).join('');
+      if (currentVal && sortedNames.includes(currentVal)) sel.value = currentVal;
+    }
+
+    function renderGymProgressCharts() {
+      const selectedEx = document.getElementById('progressExerciseSelect').value;
+      const historyChronological = [...appData.workoutHistory].reverse();
+
+      const exLabels = [];
+      const exBest1RM = [];
+      const exBestWeight = [];
+      let allTimeMaxW = 0;
+      let allTimeMax1RM = 0;
+
+      historyChronological.forEach(w => {
+        if (!w.details) return;
+        const match = w.details.find(e => e.name === selectedEx);
+        if (match && match.sets && match.sets.length > 0) {
+          let dayMaxW = 0;
+          let dayMax1RM = 0;
+          match.sets.forEach(s => {
+            if (s.weight > dayMaxW) dayMaxW = s.weight;
+            const rm = compute1RM(s.weight, s.reps);
+            if (rm > dayMax1RM) dayMax1RM = rm;
+          });
+          if (dayMaxW > 0) {
+            exLabels.push(w.date.slice(5));
+            exBestWeight.push(dayMaxW);
+            exBest1RM.push(dayMax1RM);
+            if (dayMaxW > allTimeMaxW) allTimeMaxW = dayMaxW;
+            if (dayMax1RM > allTimeMax1RM) allTimeMax1RM = dayMax1RM;
+          }
+        }
+      });
+
+      document.getElementById('prBestWeight').innerText = `${allTimeMaxW} kg`;
+      document.getElementById('prBest1RM').innerText = `${allTimeMax1RM} kg`;
+
+      if (exerciseProgressChartInstance) exerciseProgressChartInstance.destroy();
+      exerciseProgressChartInstance = new Chart(document.getElementById('exerciseProgressChart'), {
+        type: 'line',
+        data: {
+          labels: exLabels.length > 0 ? exLabels : ['Noch keine Daten'],
+          datasets: [
+            { label: '1RM (kg)', data: exBest1RM.length > 0 ? exBest1RM : [0], borderColor: '#06b6d4', backgroundColor: 'rgba(6,182,212,0.15)', tension: 0.3, fill: true },
+            { label: 'Top-Gewicht (kg)', data: exBestWeight.length > 0 ? exBestWeight : [0], borderColor: '#10b981', tension: 0.3 }
+          ]
+        },
+        options: { plugins: { legend: { labels: { color: '#cbd5e1', boxWidth: 12 } } }, scales: { y: { beginAtZero: false } } }
+      });
+
+      // Generelle Stärke (Gesamtvolumen pro Workout)
+      const volLabels = historyChronological.map(w => w.date.slice(5));
+      const volData = historyChronological.map(w => w.volume);
+
+      if (strengthVolumeChartInstance) strengthVolumeChartInstance.destroy();
+      strengthVolumeChartInstance = new Chart(document.getElementById('strengthVolumeChart'), {
+        type: 'bar',
+        data: {
+          labels: volLabels.length > 0 ? volLabels : ['Noch kein Workout'],
+          datasets: [{ label: 'Volumen (kg)', data: volData.length > 0 ? volData : [0], backgroundColor: '#10b981', borderRadius: 6 }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    // ==========================================
+    // ERNÄHRUNGS- & BEDARFSRECHNER LOGIK
+    // ==========================================
     function calculateNeeds() {
       const gender = document.getElementById('gender').value;
       const age = parseFloat(document.getElementById('age').value) || 28;
@@ -475,19 +1725,20 @@
       if (!input) return;
       const segments = input.toLowerCase().split(/,|und|\+/);
       let matched = false;
+      const allFoods = getAllFoods();
       segments.forEach(seg => {
-        for (const item of foodDB) {
-          if (item.keywords.some(k => seg.includes(k))) {
+        for (const item of allFoods) {
+          if ((item.keywords && item.keywords.some(k => seg.includes(k))) || seg.includes(item.name.toLowerCase())) {
             const gMatch = seg.match(/(\d+)\s*(g|gramm|ml)/);
             const factor = gMatch ? parseFloat(gMatch[1]) / 100 : 1;
-            const label = gMatch ? `${gMatch[1]}g` : '1 Portion';
-            addMeal(`${item.name} (${label})`, Math.round(item.kcal * factor), Math.round(item.p * factor), Math.round(item.c * factor), Math.round(item.f * factor), 'KI-Text');
+            const label = gMatch ? `${gMatch[1]}g` : '100g';
+            addMeal(`${item.name} (${label})`, Math.round(item.kcal * factor), Math.round(item.p * factor), Math.round(item.c * factor), Math.round(item.f * factor), '🤖 KI-Text');
             matched = true;
             break;
           }
         }
       });
-      if (!matched) addMeal(`${input}`, 380, 22, 42, 12, 'KI-Text');
+      if (!matched) addMeal(`${input}`, 380, 22, 42, 12, '🤖 KI-Text');
       document.getElementById('aiTextInput').value = '';
       switchTab('dashboard');
     }
@@ -505,8 +1756,6 @@
       };
       reader.readAsDataURL(file);
     }
-
-    function quickBarcode(code) { document.getElementById('barcodeInput').value = code; lookupBarcode(); }
 
     async function lookupBarcode() {
       const code = document.getElementById('barcodeInput').value.trim();
@@ -583,7 +1832,7 @@
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `NutriAI_Export_${currentDate}.csv`;
+      a.download = `NutriAI_Gym_Export_${currentDate}.csv`;
       a.click();
     }
 
